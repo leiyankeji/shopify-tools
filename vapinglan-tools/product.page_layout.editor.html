@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成JSON数据</title>
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="url"], textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .array-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .array-item button {
+            background-color: #dc3545;
+            margin-top: 10px;
+        }
+        .array-item button:hover {
+            background-color: #c82333;
+        }
+
+        .array-item:nth-of-type(2n) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>输入产品信息</h2>
+        <form id="dataForm">
+            <!-- Why Section -->
+            <div class="form-group">
+                <label for="why_title">Why Title:</label>
+                <input type="text" id="why_title" name="why_title" placeholder="">
+            </div>
+            <div class="form-group">
+                <label for="why_answer">Why Answer:</label>
+                <textarea id="why_answer" name="why_answer" placeholder=""></textarea>
+            </div>
+            <div class="form-group">
+                <label>Why Images:</label>
+                <div id="why_images_container">
+                    <!-- Why Images will be dynamically added here -->
+                </div>
+                <button type="button" onclick="addWhyImage()" style="display: none;">添加图片</button>
+            </div>
+
+            <!-- Review Video Section -->
+            <div class="form-group" style="display: none;">
+                <label for="review_video_title">Review Video Title:</label>
+                <input type="text" id="review_video_title" name="review_video_title" placeholder="">
+            </div>
+            <div class="form-group" style="display: none;">
+                <label>Review Videos:</label>
+                <div id="review_videos_container">
+                    <!-- Review Videos will be dynamically added here -->
+                </div>
+                <button type="button" onclick="addReviewVideo()">添加视频</button>
+            </div>
+
+            <!-- Desc Images Section -->
+            <div class="form-group">
+                <label>Desc Images:</label>
+                <div id="desc_images_container">
+                    <!-- Desc Images will be dynamically added here -->
+                </div>
+                <button type="button" onclick="addDescImage()">添加图片</button>
+            </div>
+
+            <!-- Discover Section -->
+            <div class="form-group">
+                <label for="discover_title">Discover Title:</label>
+                <input type="text" id="discover_title" name="discover_title" placeholder="">
+                <span>样例:</span><input type="text" disabled id="sample_discover_title">
+            </div>
+            <div class="form-group">
+                <label>Discover Images:</label>
+                <div id="discover_images_container">
+                    <!-- Discover Images will be dynamically added here -->
+                </div>
+                <button type="button" onclick="addDiscoverImage()">添加图片</button>
+            </div>
+
+            <!-- Spec Items Section -->
+            <div class="form-group">
+                <label>Spec Items:</label>
+                <div id="spec_items_container">
+                    <!-- Spec Items will be dynamically added here -->
+                </div>
+                <button type="button" onclick="addSpecItem()">添加规格</button>
+            </div>
+
+            <!-- In Box Section -->
+            <div class="form-group">
+                <label>In Box:</label>
+                <div id="in_box_container">
+                    <!-- In Box Items will be dynamically added here -->
+                </div>
+                <button type="button" onclick="addInBoxItem()">添加内容</button>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="form-group">
+                <label for="faq_title">FAQ Title:</label>
+                <input type="text" id="faq_title" name="faq_title" placeholder="">
+                <span>样例:</span><input type="text" disabled id="sample_faq_title">
+            </div>
+            <div class="form-group">
+                <label>FAQ Items:</label>
+                <div id="faq_items_container">
+                    <!-- FAQ Items will be dynamically added here -->
+                </div>
+                <button type="button" onclick="addFaqItem()">添加FAQ</button>
+            </div>
+
+            <!-- Custom CSS Section -->
+            <div class="form-group">
+                <label for="custom_css">Custom CSS:</label>
+                <textarea id="custom_css" name="custom_css" rows="5" placeholder=""></textarea>
+            </div>
+
+            <button type="button" onclick="exportToJson()">导出JSON</button>
+        </form>
+    </div>
+
+    <script>
+        // 动态添加 Why Image
+        function addWhyImage(index) {
+            const container = document.getElementById('why_images_container');
+            const item = document.createElement('div');
+            item.className = 'array-item';
+            item.innerHTML = `
+                <label>图片【${index}】 URL:</label>
+                <input type="url" placeholder="">
+                <label>标题:</label>
+                <input type="text" placeholder="">
+                <label>副标题:</label>
+                <input type="text" placeholder="">
+                <button type="button" onclick="this.parentElement.remove()" style="display:none;">删除</button>
+            `;
+            container.appendChild(item);
+        }
+
+        for(let i = 0; i < 3; i++) {
+            addWhyImage(i+1);
+        }
+
+        // 动态添加 Review Video
+        function addReviewVideo() {
+            const container = document.getElementById('review_videos_container');
+            const item = document.createElement('div');
+            item.className = 'array-item';
+            item.innerHTML = `
+                <label>封面URL:</label>
+                <input type="url" placeholder="">
+                <label>描述:</label>
+                <input type="text" placeholder="">
+                <label>作者:</label>
+                <input type="text" placeholder="">
+                <label>视频URL:</label>
+                <input type="url" placeholder="">
+                <button type="button" onclick="this.parentElement.remove()">删除</button>
+            `;
+            container.appendChild(item);
+        }
+
+        // 动态添加 Desc Image
+        function addDescImage() {
+            const container = document.getElementById('desc_images_container');
+            const item = document.createElement('div');
+            item.className = 'array-item';
+            item.innerHTML = `
+                <label>图片URL:</label>
+                <input type="url" placeholder="">
+                <label>标题:</label>
+                <input type="text" placeholder="">
+                <label>描述:</label>
+                <textarea placeholder=""></textarea>
+                <label>备注:</label>
+                <input type="text" placeholder="">
+                <button type="button" onclick="this.parentElement.remove()">删除</button>
+            `;
+            container.appendChild(item);
+        }
+
+        // 动态添加 Discover Image
+        function addDiscoverImage() {
+            const container = document.getElementById('discover_images_container');
+            const item = document.createElement('div');
+            item.className = 'array-item';
+            item.innerHTML = `
+                <label>图片URL:</label>
+                <input type="url" placeholder="">
+                <label>标题:</label>
+                <input type="text" placeholder="">
+                <label>描述:</label>
+                <textarea placeholder=""></textarea>
+                <button type="button" onclick="this.parentElement.remove()">删除</button>
+            `;
+            container.appendChild(item);
+        }
+
+        // 动态添加 Spec Item
+        function addSpecItem() {
+            const container = document.getElementById('spec_items_container');
+            const item = document.createElement('div');
+            item.className = 'array-item';
+            item.innerHTML = `
+                <label>描述:</label>
+                <textarea placeholder=""></textarea>
+                <button type="button" onclick="this.parentElement.remove()">删除</button>
+            `;
+            container.appendChild(item);
+        }
+
+        // 动态添加 In Box Item
+        function addInBoxItem() {
+            const container = document.getElementById('in_box_container');
+            const item = document.createElement('div');
+            item.className = 'array-item';
+            item.innerHTML = `
+                <label>图片URL:</label>
+                <input type="url" placeholder="">
+                <label>标题:</label>
+                <input type="text" placeholder="">
+                <button type="button" onclick="this.parentElement.remove()">删除</button>
+            `;
+            container.appendChild(item);
+        }
+
+        // 动态添加 FAQ Item
+        function addFaqItem() {
+            const container = document.getElementById('faq_items_container');
+            const item = document.createElement('div');
+            item.className = 'array-item';
+            item.innerHTML = `
+                <label>标题:</label>
+                <input type="text" placeholder="">
+                <label>描述:</label>
+                <textarea placeholder=""></textarea>
+                <div style="font-size: 12px;line-height: 2;">列表可以复制到chat gpt，后面输入: </div>
+                <input style="width: 100%; box-sizing:border-box;" disabled value="用html ul标签组装, 每行一个li标签, 去掉换行" ></input>
+
+                <button type="button" onclick="this.parentElement.remove()">删除</button>
+            `;
+            container.appendChild(item);
+        }
+
+        // 导出JSON
+        function exportToJson() {
+            const data = {
+                features: {
+                    why_title: document.getElementById('why_title').value,
+                    why_answer: document.getElementById('why_answer').value,
+                    why_images: Array.from(document.querySelectorAll('#why_images_container .array-item')).map(item => ({
+                        src: item.querySelector('input[type="url"]').value,
+                        title: item.querySelectorAll('input[type="text"]')[0].value,
+                        subtitle: item.querySelectorAll('input[type="text"]')[1].value
+                    })),
+                    review_video_title: document.getElementById('review_video_title').value,
+                    review_videos: Array.from(document.querySelectorAll('#review_videos_container .array-item')).map(item => ({
+                        cover_src: item.querySelectorAll('input[type="url"]')[0].value,
+                        desc: item.querySelectorAll('input[type="text"]')[0].value,
+                        author: item.querySelectorAll('input[type="text"]')[1].value,
+                        url: item.querySelectorAll('input[type="url"]')[1].value
+                    })),
+                    desc_images: Array.from(document.querySelectorAll('#desc_images_container .array-item')).map(item => ({
+                        src: item.querySelector('input[type="url"]').value,
+                        title: item.querySelectorAll('input[type="text"]')[0].value,
+                        desc: item.querySelector('textarea').value,
+                        remark: item.querySelectorAll('input[type="text"]')[1].value
+                    })),
+                    discover_title: document.getElementById('discover_title').value,
+                    discover_images: Array.from(document.querySelectorAll('#discover_images_container .array-item')).map(item => ({
+                        src: item.querySelector('input[type="url"]').value,
+                        title: item.querySelectorAll('input[type="text"]')[0].value,
+                        desc: item.querySelector('textarea').value
+                    }))
+                },
+                spec_items: Array.from(document.querySelectorAll('#spec_items_container .array-item')).map(item => ({
+                    desc: item.querySelector('textarea').value
+                })),
+                in_box: Array.from(document.querySelectorAll('#in_box_container .array-item')).map(item => ({
+                    image_src: item.querySelector('input[type="url"]').value,
+                    title: item.querySelector('input[type="text"]').value
+                })),
+                faq_title: document.getElementById('faq_title').value,
+                faq_items: Array.from(document.querySelectorAll('#faq_items_container .array-item')).map(item => ({
+                    title: item.querySelectorAll('input[type="text"]')[0].value,
+                    desc: item.querySelector('textarea').value
+                })),
+                custom_css: document.getElementById('custom_css').value
+            };
+
+            const jsonData = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // 参考FAQ标题
+        document.getElementById('sample_faq_title').value = 'FAQs - <span class=\"highlighted-text\">NEXA Ultra 50K</span>';
+        // 参考discover标题
+        document.getElementById('sample_discover_title').value = 'Discover <span class=\"highlighted-text\">NEXA Ultra 50K</span>';
+
+        // custom CSS 默认值
+        document.getElementById('custom_css').value = '.why-img-1-text {padding: 0 0 0 0;}  .why-img-1-text-mobile {padding: 0;}  .why-img-2-text {padding: 45% 0 0 0;}  .why-img-2-text-mobile {padding: 60% 0 0 0;}  .why-img-3-text {padding: 25% 0 0 0;} .why-img-3-text-mobile {padding: 60% 0 0 0;}';
+
+    </script>
+</body>
+</html>
